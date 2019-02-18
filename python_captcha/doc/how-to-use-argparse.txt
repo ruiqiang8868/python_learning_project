@@ -1,0 +1,186 @@
+Python命令行解析argparse常用语法使用简介
+
+python中的命令行解析最简单最原始的方法是使用sys.argv来实现，更高级的可以使用argparse这个模块。
+argparse从python 2.7开始被加入到标准库中，所以如果你的python版本还在2.7以下，那么需要先手动安装。
+
+基本使用
+
+import argparse
+parser=argparse.ArgumentParser()
+parser.add_argument("echo",help="echo the string")
+args=parser.parse_args()
+print args.echo
+
+参数介绍
+上面这个例子是最简单的一个使用例子，功能是把你的输入参数打印到屏幕 。不过对于基本的使用需求，
+这几行代码应该就已经够用，更加高级的用法可以参考官方文档。
+
+下面介绍下例子代码。
+
+1、导入argparse模块
+
+2、创建解析器对象ArgumentParser，可以添加参数。
+
+   description：描述程序
+
+	parser=argparse.ArgumentParser(description="This is a example program ")
+
+   add_help：默认是True，可以设置False禁用
+
+3、add_argument()方法，用来指定程序需要接受的命令参数
+
+   定位参数：
+
+	parser.add_argument("echo",help="echo the string")
+
+   可选参数：
+
+	parser.add_argument("--verbosity", help="increase output verbosity")
+
+   在执行程序的时候，定位参数必选，可选参数可选。
+
+add_argument()常用的参数：
+
+   dest：如果提供dest，例如dest="a"，那么可以通过args.a访问该参数
+
+   default：设置参数的默认值
+
+   action：参数出发的动作
+
+   store：保存参数，默认
+
+   store_const：保存一个被定义为参数规格一部分的值（常量），而不是一个来自参数解析而来的值。
+
+   store_ture/store_false：保存相应的布尔值
+
+   append：将值保存在一个列表中。
+
+   append_const：将一个定义在参数规格中的值（常量）保存在一个列表中。
+
+   count：参数出现的次数
+
+	parser.add_argument("-v", "--verbosity", action="count", default=0, help="increase output verbosity")
+
+   version：打印程序版本信息
+
+   type：把从命令行输入的结果转成设置的类型
+
+   choice：允许的参数值
+
+	parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1, 2], help="increase output verbosity")
+
+   help：参数命令的介绍
+
+上代码：
+
+    我们从一个基本的程序开始（它什么也不做）
+
+	import argparse
+	parser = argparse.ArgumentParser()
+	parser.parse_args()
+    运行结果：
+ 
+	$ python prog.py
+	$ python prog.py --help
+	usage: prog.py [-h]
+	
+	optional arguments:
+	  -h, --help  show this help message and exit
+	$ python prog.py --verbose
+	usage: prog.py [-h]
+	prog.py: error: unrecognized arguments: --verbose
+	$ python prog.py foo
+	usage: prog.py [-h]
+prog.py: error: unrecognized arguments: foo
+ 
+结果分析：
+
+   若不给参数而运行这个程序，将不会得到任何结果。
+   第二条命名显示了使用的argparse的好处，你什么也没做，却得到了一个很好的帮助信息。
+   我们无需人为设置--help参数，就能得到一个良好的帮助信息。但是若给其他参数（比如foo）就会产生一个错误。
+
+
+位置参数
+
+   首先，给一个例子：
+
+	import argparse
+	parser = argparse.ArgumentParser()
+	parser.add_argument("echo")
+	args = parser.parse_args()
+	print args.echo
+   运行结果:
+ 
+	$ python prog.py
+	usage: prog.py [-h] echo
+	prog.py: error: the following arguments are required: echo
+
+	$ python prog.py --help
+	usage: prog.py [-h] echo
+	
+	positional arguments:
+	  echo
+	
+	optional arguments:
+	  -h, --help  show this help message and exit
+	$ python prog.py foo
+	foo
+ 
+结果分析：
+
+   这次，我们增加了一个add_argument()方法，用来设置程序可接受的命令行参数。
+   现在要运行程序，就必须设置一个参数。
+   parse_args()方法实际上从我们的命令行参数中返回了一些数据，在上面的例子中是echo
+   这个像“魔法”一样的过程，是argparse自动完成的。
+
+尽管自动产生的帮助信息展示地很美观，但是我们仍然无法只根据echo这个参数知道它是做什么的。所以，我们增加了一些东西，使得它变得更有用。
+
+	import argparse
+	parser = argparse.ArgumentParser()
+	parser.add_argument("echo", help="echo the string you use here")
+	args = parser.parse_args()
+	print args.echo
+运行结果：
+	 
+	$ python prog.py -h
+	usage: prog.py [-h] echo
+	
+	positional arguments:
+	  echo        echo the string you use here
+	
+	optional arguments:
+	  -h, --help  show this help message and exit
+	 
+
+在此基础上，我们再多改变一点：（计算输入参数square的平方）
+
+	import argparse
+	parser = argparse.ArgumentParser()
+	parser.add_argument("square", help="display a square of a given number")
+	args = parser.parse_args()
+	print args.square**2	
+下面是运行结果：
+
+	$ python prog.py 4
+	Traceback (most recent call last):
+	  File "prog.py", line 5, in <module>
+	    print args.square**2
+	TypeError: unsupported operand type(s) for ** or pow(): 'str' and 'int'
+这个程序并不能正确运行，因为argparse会将输入当作字符串处理，所以我们需要设置它的类型：（type=int）
+
+ 
+	import argparse
+	parser = argparse.ArgumentParser()
+	parser.add_argument("square", help="display a square of a given number",
+	                    type=int)
+	args = parser.parse_args()
+	print args.square**2
+ 
+下面是运行结果:
+	
+	$ python prog.py 4
+	16
+	$ python prog.py four
+	usage: prog.py [-h] square
+	prog.py: error: argument square: invalid int value: 'four'
+现在，这个程序能够顺利运行，而且能够处理一些错误输入。
