@@ -1,7 +1,6 @@
 from PIL import Image
 import numpy as np
 import os
-#~ import join
 import time
 
 def image(original_picture_dir, transformed_picture_dir, depths=10):
@@ -41,6 +40,7 @@ def image(original_picture_dir, transformed_picture_dir, depths=10):
 	# Save transformed image
 	im.save(transformed_picture_dir)
 	
+	
 def main():
 	depth = 10
 	start_time = time.clock()
@@ -48,12 +48,12 @@ def main():
 	root_path = os.getcwd() + '/'
 	pictures_list = os.listdir(root_path + 'data')
 	
-	time.sleep(2)
+	#time.sleep(2)
 	
-	for starts in pictures_list:
-		start = ''.join(starts)
+	for start in pictures_list:
+		#~ start = ''.join(starts)
 		original_picture_dir = root_path  + 'data/' + start
-		transformed_picture_dir = root_path + 'data/' + 'HD_' + start
+		transformed_picture_dir = root_path + 'output/' + 'HD_' + start
 		
 		image(original_picture_dir=original_picture_dir, 
 				transformed_picture_dir=transformed_picture_dir, depths=depth)
