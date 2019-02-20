@@ -248,3 +248,9 @@ im_resize.show()
         
 使用给定的两张图像及透明度变量alpha，插值出一张新的图像。这两张图像必须有一样的尺寸和模式
 """
+
+
+
+im_gif = Image.open(picture_path + picture_list[4], mode='r')
+im_gif.show()
+
